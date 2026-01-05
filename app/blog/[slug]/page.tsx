@@ -10,7 +10,6 @@ import remarkGfm from 'remark-gfm';
 import rehypeExtractToc from '@stefanprobst/rehype-extract-toc';
 import rehypeSanitize from 'rehype-sanitize';
 import rehypePrettyCode from 'rehype-pretty-code';
-import rehypeSlug from 'rehype-slug';
 import { compile } from '@mdx-js/mdx';
 import withSlugs from 'rehype-slug';
 import withToc from '@stefanprobst/rehype-extract-toc';
@@ -22,8 +21,6 @@ interface TocEntry {
   id?: string;
   children?: Array<TocEntry>;
 }
-
-// type Toc = Array<TocEntry>;
 
 function TableOfContentsLink({ item }: { item: TocEntry }) {
   const { id, value, children } = item;
@@ -105,7 +102,7 @@ export default async function BlogPost({ params }: BlogPostProps) {
               options={{
                 mdxOptions: {
                   remarkPlugins: [remarkGfm],
-                  rehypePlugins: [rehypeSlug, rehypeExtractToc, rehypePrettyCode],
+                  rehypePlugins: [withSlugs, rehypeExtractToc, rehypePrettyCode],
                 },
               }}
             />
