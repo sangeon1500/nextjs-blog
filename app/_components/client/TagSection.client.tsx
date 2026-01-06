@@ -1,22 +1,26 @@
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+'use client';
+
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Link from 'next/link';
 import { TagFilterItem } from '@/types/blog';
 import { cn } from '@/lib/utils';
+import { use } from 'react';
 
 interface TagSectionProps {
-  tags: TagFilterItem[];
+  tags: Promise<TagFilterItem[]>;
   selectedTag: string;
 }
 
 export default function TagSection({ tags, selectedTag }: TagSectionProps) {
+  const allTags = use(tags);
   return (
     <Card>
       <CardHeader>
-        <CardTitle>태그목록</CardTitle>
+        <CardTitle>태그 목록</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="flex flex-col gap-3">
-          {tags.map(({ name, count }) => (
+          {allTags.map(({ name, count }) => (
             <Link href={`?tag=${name}`} key={name}>
               <div
                 className={cn(

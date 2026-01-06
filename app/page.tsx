@@ -1,45 +1,37 @@
-
-import { PostCard } from '@/components/features/blog/PostCard';
-import TagSection from './_components/TagSection';
+import TagSectionClient from './_components/client/TagSection.client';
 import ProfileSection from './_components/ProfileSection';
 import ContactSection from './_components/ContactSection';
-import Link from 'next/link';
-import { getPublishedPosts } from '@/lib/notion';
-import SortSelect from './_components/client/SortSelect';
+import HeaderSection from './_components/HeaderSection';
+import PostListClient from '@/components/features/blog/client/PostList.client';
+import { Suspense } from 'react';
+import { getTags } from '@/lib/notion';
+import PostListSkeleton from '@/components/features/blog/PostListSkeleton';
+import TagSectionSkeleton from './_components/TagSectionSkeleton';
 
-const mockTags = [
-  { id: 'all', name: '전체', count: 20 },
-  { id: 'html', name: 'HTML', count: 10 },
-  { id: 'css', name: 'CSS', count: 5 },
-  { id: 'javascript', name: 'JavaScript', count: 3 },
-  { id: 'react', name: 'React', count: 3 },
-  { id: 'nextjs', name: 'Next.js', count: 3 },
-];
+interface HomeProps {
+  searchParams: Promise<{ tag?: string; sort?: string }>;
+}
 
-export default async function Home() {
-  const posts = await getPublishedPosts();
+export default async function Home({ searchParams }: HomeProps) {
+  const { tag } = await searchParams;
+  const selectedTag = tag || '전체';
+  const tags = getTags();
 
   return (
     <div className="container">
       <div className="grid grid-cols-[200px_1fr_220px] gap-6">
         <aside>
-          <TagSection tags={mockTags} />
+          <Suspense fallback={<TagSectionSkeleton />}>
+            <TagSectionClient tags={tags} selectedTag={selectedTag} />
+          </Suspense>
         </aside>
         <div className="space-y-8">
           {/* 섹션 제목 */}
-          <h2 className="text-3xl font-bold tracking-tight">블로그 목록</h2>
-          <div className="flex items-center justify-between">
-            <h2 className="text-3xl font-bold tracking-tight">블로그 목록</h2>
-            <SortSelect />
-          </div>
+          <HeaderSection selectedTag={selectedTag} />
           {/* 블로그 카드 그리드 */}
-          <div className="grid gap-4">
-            {posts.map((post) => (
-              <Link href={`/blog/${post.id}`} key={post.id}>
-                <PostCard key={post.id} post={post} />
-              </Link>
-            ))}
-          </div>
+          <Suspense fallback={<PostListSkeleton />}>
+            <PostListClient />
+          </Suspense>
         </div>
         <aside>
           <ProfileSection />

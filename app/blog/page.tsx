@@ -1,9 +1,36 @@
-export default function Blog() {
+import TagSection from '@/app/_components/TagSection';
+import ProfileSection from '@/app/_components/ProfileSection';
+import ContactSection from '@/app/_components/ContactSection';
+import { getTags } from '@/lib/notion';
+import HeaderSection from '@/app/_components/HeaderSection';
+import PostListClient from '@/components/features/blog/client/PostList.client';
+import { TagFilterItem } from '@/types/blog';
+
+interface BlogProps {
+  searchParams: Promise<{ tag?: string; sort?: string }>;
+}
+
+export default async function Blog({ searchParams }: BlogProps) {
+  const { tag } = await searchParams;
+  const selectedTag = tag || '전체';
+  const tags = await getTags();
+
   return (
     <div className="container">
-      <div className="space-y-8">
-        {/* 섹션 제목 */}
-        <h2 className="text-3xl font-bold tracking-tight">블로그</h2>
+      <div className="grid grid-cols-[200px_1fr_220px] gap-6">
+        <aside>
+          <TagSection tags={tags as TagFilterItem[]} selectedTag={selectedTag} />
+        </aside>
+        <div className="space-y-8">
+          {/* 섹션 제목 */}
+          <HeaderSection selectedTag={selectedTag} />
+          {/* 블로그 카드 그리드 */}
+          <PostListClient />
+        </div>
+        <aside>
+          <ProfileSection />
+          <ContactSection />
+        </aside>
       </div>
     </div>
   );

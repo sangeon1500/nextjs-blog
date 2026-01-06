@@ -9,9 +9,10 @@ import { Post } from '@/types/blog';
 
 interface PostCardProps {
   post: Post;
+  priority?: boolean;
 }
 
-export function PostCard({ post }: PostCardProps) {
+export function PostCard({ post, priority = false }: PostCardProps) {
   const { coverImage, title, description, tags, author, date } = post;
   return (
     <Card className="group bg-card/50 border-border/40 hover:border-primary/20 overflow-hidden border backdrop-blur-sm transition-all duration-300 hover:scale-[1.02] hover:shadow-lg">
@@ -23,7 +24,7 @@ export function PostCard({ post }: PostCardProps) {
             alt={title}
             fill
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            priority={false}
+            priority={priority}
             className="object-cover transition-transform duration-300 group-hover:scale-105"
           />
         </div>
