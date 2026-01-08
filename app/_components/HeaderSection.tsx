@@ -1,4 +1,4 @@
-import SortSelect from './client/SortSelect';
+import SortSelect from './client/SortSelect.client';
 
 interface HeaderSectionProps {
   selectedTag: string;

@@ -1,9 +1,9 @@
 import TagSection from '@/app/_components/TagSection';
 import ProfileSection from '@/app/_components/ProfileSection';
 import ContactSection from '@/app/_components/ContactSection';
-import { getTags } from '@/lib/notion';
+import { getPublishedPosts, getTags } from '@/lib/notion';
 import HeaderSection from '@/app/_components/HeaderSection';
-import PostListClient from '@/components/features/blog/client/PostList.client';
+import PostList from '@/components/features/blog/PostList';
 import { TagFilterItem } from '@/types/blog';
 
 interface BlogProps {
@@ -25,7 +25,7 @@ export default async function Blog({ searchParams }: BlogProps) {
           {/* 섹션 제목 */}
           <HeaderSection selectedTag={selectedTag} />
           {/* 블로그 카드 그리드 */}
-          <PostListClient />
+          <PostList postsPromise={getPublishedPosts()} />
         </div>
         <aside>
           <ProfileSection />
