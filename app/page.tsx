@@ -2,9 +2,9 @@ import TagSectionClient from './_components/client/TagSection.client';
 import ProfileSection from './_components/ProfileSection';
 import ContactSection from './_components/ContactSection';
 import HeaderSection from './_components/HeaderSection';
-import PostListClient from '@/components/features/blog/client/PostList.client';
+import PostList from '@/components/features/blog/PostList';
 import { Suspense } from 'react';
-import { getTags } from '@/lib/notion';
+import { getPublishedPosts, getTags } from '@/lib/notion';
 import PostListSkeleton from '@/components/features/blog/PostListSkeleton';
 import TagSectionSkeleton from './_components/TagSectionSkeleton';
 
@@ -15,7 +15,9 @@ interface HomeProps {
 export default async function Home({ searchParams }: HomeProps) {
   const { tag } = await searchParams;
   const selectedTag = tag || '전체';
+
   const tags = getTags();
+  const postPromise = getPublishedPosts({ tag: selectedTag, sort: 'latest', pageSize: 2 });
 
   return (
     <div className="container">
@@ -30,7 +32,7 @@ export default async function Home({ searchParams }: HomeProps) {
           <HeaderSection selectedTag={selectedTag} />
           {/* 블로그 카드 그리드 */}
           <Suspense fallback={<PostListSkeleton />}>
-            <PostListClient />
+            <PostList postsPromise={postPromise} />
           </Suspense>
         </div>
         <aside>
