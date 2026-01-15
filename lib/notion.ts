@@ -5,6 +5,7 @@ import type {
   PersonUserObjectResponse,
 } from '@notionhq/client/build/src/api-endpoints';
 import { NotionToMarkdown } from 'notion-to-md';
+import { unstable_cache } from 'next/cache';
 
 export const notion = new Client({
   auth: process.env.NOTION_TOKEN,
@@ -101,54 +102,58 @@ export interface GetPublishedPostsResponse {
   nextCursor: string | null;
 }
 
-export const getPublishedPosts = async ({
-  tag = '전체',
-  sort = 'latest',
-  pageSize = 2,
-  startCursor,
-}: GetPublishedPostsParams = {}): Promise<GetPublishedPostsResponse> => {
-  const response = await notion.dataSources.query({
-    data_source_id: process.env.NOTION_DATABASE_ID!,
-    filter: {
-      and: [
-        {
-          property: 'Status',
-          select: {
-            equals: 'Published',
+export const getPublishedPosts = unstable_cache(
+  async ({
+    tag = '전체',
+    sort = 'latest',
+    pageSize = 2,
+    startCursor,
+  }: GetPublishedPostsParams = {}): Promise<GetPublishedPostsResponse> => {
+    const response = await notion.dataSources.query({
+      data_source_id: process.env.NOTION_DATABASE_ID!,
+      filter: {
+        and: [
+          {
+            property: 'Status',
+            select: {
+              equals: 'Published',
+            },
           },
-        },
-        ...(tag && tag !== '전체'
-          ? [
-              {
-                property: 'Tags',
-                multi_select: {
-                  contains: tag,
+          ...(tag && tag !== '전체'
+            ? [
+                {
+                  property: 'Tags',
+                  multi_select: {
+                    contains: tag,
+                  },
                 },
-              },
-            ]
-          : []),
-      ],
-    },
-    sorts: [
-      {
-        property: 'Date',
-        direction: sort === 'latest' ? 'descending' : 'ascending',
+              ]
+            : []),
+        ],
       },
-    ],
-    start_cursor: startCursor,
-    page_size: pageSize,
-  });
+      sorts: [
+        {
+          property: 'Date',
+          direction: sort === 'latest' ? 'descending' : 'ascending',
+        },
+      ],
+      start_cursor: startCursor,
+      page_size: pageSize,
+    });
 
-  const posts = response.results
-    .filter((page): page is PageObjectResponse => 'properties' in page)
-    .map(getPostMetadata);
+    const posts = response.results
+      .filter((page): page is PageObjectResponse => 'properties' in page)
+      .map(getPostMetadata);
 
-  return {
-    posts,
-    hasMore: response.has_more,
-    nextCursor: response.next_cursor,
-  };
-};
+    return {
+      posts,
+      hasMore: response.has_more,
+      nextCursor: response.next_cursor,
+    };
+  },
+  ['posts'],
+  { tags: ['posts'] }
+);
 
 export const getPostBySlug = async (
   slug: string

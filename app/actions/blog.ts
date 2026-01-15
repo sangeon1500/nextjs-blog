@@ -1,6 +1,7 @@
 'use server';
 
 import { createPost } from '@/lib/notion';
+import { revalidateTag } from 'next/cache';
 import { z } from 'zod';
 
 const postSchema = z.object({
@@ -23,15 +24,10 @@ export interface PostFormState {
     content?: string[];
   };
   formData?: PostFormData;
+  success?: boolean;
 }
 
 export async function createPostAction(prevState: PostFormState, formData: FormData) {
-  // const title = formData.get('title') as string;
-  // const tag = formData.get('tag') as string;
-  // const content = formData.get('content') as string;
-
-  // const { title, tag, content } = Object.fromEntries(formData);
-
   const rawFormData = {
     title: formData.get('title') as string,
     tag: formData.get('tag') as string,
@@ -45,6 +41,7 @@ export async function createPostAction(prevState: PostFormState, formData: FormD
       errors: validatedFields.error.flatten().fieldErrors,
       message: '유효성 검사에 실패했습니다.',
       formData: rawFormData,
+      success: false,
     };
   }
 
@@ -57,13 +54,17 @@ export async function createPostAction(prevState: PostFormState, formData: FormD
       content: content,
     });
 
+    revalidateTag('posts');
+
     return {
       message: '블로그 포스트가 성공적으로 생성되었습니다.',
+      success: true,
     };
   } catch {
     return {
       message: '블로그 포스트 생성에 실패했습니다.',
       formData: rawFormData,
+      success: false,
     };
   }
 }
