@@ -13,6 +13,7 @@ import withToc from '@stefanprobst/rehype-extract-toc';
 import withTocExport from '@stefanprobst/rehype-extract-toc/mdx';
 import GiscusComments from '@/components/GiscusComments';
 import TableOfContentsLink from '@/app/_components/features/TableOfContentsLink';
+import { notFound } from 'next/navigation';
 
 interface BlogPostProps {
   params: Promise<{
@@ -23,6 +24,11 @@ interface BlogPostProps {
 export default async function BlogPost({ params }: BlogPostProps) {
   const { slug } = await params;
   const { markdown, post } = await getPostBySlug(slug);
+
+  if (!post) {
+    notFound();
+  }
+
   const { tags, title, author, date } = post;
 
   const { data } = await compile(markdown, {
