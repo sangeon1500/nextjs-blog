@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { CalendarDays, User } from 'lucide-react';
@@ -13,35 +12,7 @@ import withSlugs from 'rehype-slug';
 import withToc from '@stefanprobst/rehype-extract-toc';
 import withTocExport from '@stefanprobst/rehype-extract-toc/mdx';
 import GiscusComments from '@/components/GiscusComments';
-
-interface TocEntry {
-  value: string;
-  depth: number;
-  id?: string;
-  children?: Array<TocEntry>;
-}
-
-function TableOfContentsLink({ item }: { item: TocEntry }) {
-  const { id, value, children } = item;
-  return (
-    <div className="space-y-2">
-      <Link
-        key={id}
-        href={`#${id}`}
-        className={`hover:text-foreground text-muted-foreground block font-medium transition-colors`}
-      >
-        {value}
-      </Link>
-      {children && children.length > 0 && (
-        <div className="space-y-2 pl-4">
-          {children.map((subItem) => (
-            <TableOfContentsLink key={subItem.id} item={subItem} />
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
+import TableOfContentsLink from '@/app/_components/features/TableOfContentsLink';
 
 interface BlogPostProps {
   params: Promise<{
@@ -59,9 +30,9 @@ export default async function BlogPost({ params }: BlogPostProps) {
   });
 
   return (
-    <article className="container mx-auto px-4 py-12">
-      <div className="grid grid-cols-[240px_1fr_280px] gap-8">
-        <aside>{/* 콘텐츠 추가 */}</aside>
+    <div className="container py-6 md:py-8 lg:py-12">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-[240px_1fr_240px] md:gap-8">
+        <aside className="hidden md:block">{/* 추후 콘텐츠 추가 */}</aside>
         <section>
           {/* 블로그 헤더 */}
           <div className="space-y-4">
@@ -69,7 +40,7 @@ export default async function BlogPost({ params }: BlogPostProps) {
               {tags?.map((tag) => (
                 <Badge key={tag}>{tag}</Badge>
               ))}
-              <h1 className="text-4xl font-bold">{title}</h1>
+              <h1 className="text-3xl font-bold md:text-4xl">{title}</h1>
             </div>
 
             {/* 메타 정보 */}
@@ -86,6 +57,18 @@ export default async function BlogPost({ params }: BlogPostProps) {
           </div>
 
           <Separator className="my-8" />
+
+          {/* 모바일 전용 목차 */}
+          <div className="sticky top-[--sticky-top] mb-6 md:hidden">
+            <details className="bg-muted/60 rounded-lg p-4 backdrop-blur-sm">
+              <summary className="cursor-pointer text-lg font-semibold">목차</summary>
+              <nav className="mt-3 space-y-3 text-sm">
+                {data?.toc?.map((item) => (
+                  <TableOfContentsLink key={item.id} item={item} />
+                ))}
+              </nav>
+            </details>
+          </div>
 
           {/* 블로그 본문 */}
           <div className="prose prose-slate dark:prose-invert prose-headings:scroll-mt-(--header-height) max-w-none">
@@ -105,7 +88,7 @@ export default async function BlogPost({ params }: BlogPostProps) {
           {/* 댓글 영역 */}
           <GiscusComments />
         </section>
-        <aside className="relative">
+        <aside className="relative hidden md:block">
           <div className="top-[calc(var(--header-height) + 1rem)] sticky">
             <div className="bg-muted/20 space-y-4 rounded-lg p-6 backdrop-blur-sm">
               <h3 className="text-lg font-semibold">목차</h3>
@@ -118,6 +101,6 @@ export default async function BlogPost({ params }: BlogPostProps) {
           </div>
         </aside>
       </div>
-    </article>
+    </div>
   );
 }
