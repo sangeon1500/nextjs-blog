@@ -1,24 +1,24 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { BookOpen, Github, Instagram, Youtube } from 'lucide-react';
-import Image from 'next/image';
+import { ProfileImage } from '@/components/ProfileImage';
 
 const socialLinks = [
   {
     icon: Youtube,
-    href: 'https://www.youtube.com/gymcoding',
+    href: 'https://www.youtube.com/sangeon1500',
   },
   {
     icon: Github,
-    href: 'https://github.com/gymcoding',
+    href: 'https://github.com/sangeon1500',
   },
   {
     icon: BookOpen,
-    href: 'https://www.inflearn.com/users/432199/@gymcoding',
+    href: 'https://www.inflearn.com/users/432199/@sangeon1500',
   },
   {
     icon: Instagram,
-    href: 'https://www.instagram.com/gymcoding',
+    href: 'https://www.instagram.com/sangeon1500',
   },
 ];
 
@@ -30,13 +30,7 @@ export default function ProfileSection() {
           <div className="flex justify-center">
             <div className="bg-muted rounded-full p-2">
               <div className="h-36 w-36 overflow-hidden rounded-full">
-                <Image
-                  src="/images/profile-light.png"
-                  alt="짐코딩"
-                  width={144}
-                  height={144}
-                  className="object-cover"
-                />
+                <ProfileImage />
               </div>
             </div>
           </div>
