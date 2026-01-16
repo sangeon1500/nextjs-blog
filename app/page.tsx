@@ -7,10 +7,19 @@ import { Suspense } from 'react';
 import { getPublishedPosts, getTags } from '@/lib/notion';
 import PostListSkeleton from '@/components/features/blog/PostListSkeleton';
 import TagSectionSkeleton from './_components/TagSectionSkeleton';
+import { Metadata } from 'next';
 
 interface HomeProps {
   searchParams: Promise<{ tag?: string; sort?: string }>;
 }
+
+export const metadata: Metadata = {
+  title: '홈',
+  description: '프론트엔드 개발자 박상언의 블로그입니다. 개발 지식과 경험을 공유합니다.',
+  alternates: {
+    canonical: '/',
+  },
+};
 
 export default async function Home({ searchParams }: HomeProps) {
   const { tag } = await searchParams;

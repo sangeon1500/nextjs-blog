@@ -1,7 +1,7 @@
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { CalendarDays, User } from 'lucide-react';
-import { getPostBySlug } from '@/lib/notion';
+import { getPostBySlug, getPublishedPosts } from '@/lib/notion';
 import { MDXRemote } from 'next-mdx-remote/rsc';
 import remarkGfm from 'remark-gfm';
 import rehypeExtractToc from '@stefanprobst/rehype-extract-toc';
@@ -14,12 +14,58 @@ import withTocExport from '@stefanprobst/rehype-extract-toc/mdx';
 import GiscusComments from '@/components/GiscusComments';
 import TableOfContentsLink from '@/app/_components/features/TableOfContentsLink';
 import { notFound } from 'next/navigation';
+import { Metadata } from 'next';
 
 interface BlogPostProps {
   params: Promise<{
     slug: string;
   }>;
 }
+
+// 동적 메타데이터 생성
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const { post } = await getPostBySlug(slug);
+
+  if (!post) {
+    return {
+      title: '포스트를 찾을 수 없습니다',
+      description: '요청하신 블로그 포스트를 찾을 수 없습니다.',
+    };
+  }
+
+  return {
+    title: post.title,
+    description: post.description || `${post.title} - 박상언 블로그`,
+    keywords: post.tags,
+    authors: [{ name: post.author || '박상언' }],
+    publisher: '박상언',
+    alternates: {
+      canonical: `/blog/${post.slug}`,
+    },
+    openGraph: {
+      title: post.title,
+      description: post.description,
+      url: `/blog/${post.slug}`,
+      type: 'article',
+      publishedTime: post.date,
+      modifiedTime: post.modifiedDate,
+      authors: post.author || '박상언',
+      tags: post.tags,
+    },
+  };
+}
+
+export const generateStaticParams = async () => {
+  const { posts } = await getPublishedPosts();
+  return posts.map((post) => ({ slug: post.slug }));
+};
+
+export const revalidate = 3600; // 1 시간 주기로 데이터 캐시
 
 export default async function BlogPost({ params }: BlogPostProps) {
   const { slug } = await params;
